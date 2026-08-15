@@ -31,7 +31,7 @@ export const Route = createFileRoute("/")({
   component: Index,
 });
 
-function Index() {
+export function Index() {
   const [active, setActive] = useState<Project | null>(null);
 
   return (
