@@ -4,204 +4,549 @@ import project3 from "@/assets/project-3.jpg";
 
 
 export type CodeFile = {
-  /** 按鈕上顯示的名稱 */
-  name: string;
-  /** 這段程式碼負責的功能說明 */
-  summary: string;
-  code: string;
+    /** 按鈕上顯示的名稱 */
+    name: string;
+    /** 這段程式碼負責的功能說明 */
+    summary: string;
+    code: string;
 };
 
 export type VideoFile = {
-  /** 按鈕上顯示的名稱 */
-  name: string;
-  /** 這段影片展示的功能說明 */
-  summary?: string;
-  /** 放置在 public/videos/ 的影片檔，例如 /videos/ewova.mp4 */
-  url: string;
+    /** 按鈕上顯示的名稱 */
+    name: string;
+    /** 這段影片展示的功能說明 */
+    summary?: string;
+    /** 放置在 public/videos/ 的影片檔，例如 /videos/ewova.mp4 */
+    url: string;
 };
 
 export type Project = {
-  id: string;
-  title: string;
-  tagline: string;
-  year: string;
-  role: string;
-  engine: string;
-  platforms: string[];
-  tags: string[];
-  poster: string;
-  /** 多個功能影片，可在詳細視窗中切換播放 */
-  videoFiles?: VideoFile[];
-  overview: string;
-  highlights: string[];
-  codeFiles: CodeFile[];
+    id: string;
+    title: string;
+    tagline: string;
+    year: string;
+    role: string;
+    engine: string;
+    platforms: string[];
+    tags: string[];
+    poster: string;
+    /** 多個功能影片，可在詳細視窗中切換播放 */
+    videoFiles?: VideoFile[];
+    overview: string;
+    highlights: string[];
+    codeFiles: CodeFile[];
 };
 
 export const projects: Project[] = [
-  {
-    id: "ewova",
-    title: "多人連線專案",
-    tagline: "多人連線 VR 教育平台：畫筆同步、個人房間與寵物商店",
-    year: "\n",
-    role: "",
-    engine: "Unity · VR",
-    platforms: ["VR", "PC"],
-    tags: ["多人連線", "VR", "狀態同步"],
-    poster: project1,
-    videoFiles: [
-      { name: "畫圖功能", url: "/videos/ewova-1.mp4" },
-      { name: "畫圖同步", url: "/videos/ewova-2.mp4" },
-      { name: "造型切換", url: "/videos/ewova-3.mp4" },
-      { name: "伺服器世界選單", url: "/videos/ewova-4.mp4" },
-      { name: "寵物商店", url: "/videos/ewova-5.mp4" },
-      { name: "寵物功能", url: "/videos/ewova-6.mp4" },
-    ],
-
-    overview:
-      "教育導向的多人連線VR專案，我負責核心多人連線功能的實作與整合，包含跨使用者的即時繪圖同步、個人房間系統，以及寵物與寵物商店的購買、選擇與交易流程。",
-    highlights: [
-      "獨立製作多人連線畫筆與筆畫即時同步，處理延遲補償與後進玩家的歷史筆畫重建",
-      "個人房間系統：房間資料存讀、角色造型切換、家具/物件擺放與跨場景載入",
-      "寵物系統與寵物商店：購買、選擇、交易與資料持久化",
-      "整合多人連線架構，統一玩家狀態、角色化身與場景同步流程",
-    ],
-    codeFiles: [
-      {
-        name: "NetworkBrush.cs",
-        summary: "多人連線畫筆：本地繪製並批次同步筆畫點",
-        code: `using System.Collections.Generic;
-using UnityEngine;
-
-public class NetworkBrush : MonoBehaviour
-{
-    [SerializeField] private LineRenderer linePrefab;
-    [SerializeField] private float minPointDistance = 0.01f;
-    [SerializeField] private int batchSize = 16;
-
-    private LineRenderer _current;
-    private readonly List<Vector3> _points = new();
-    private readonly List<Vector3> _pending = new();
-
-    public void BeginStroke(Color color, float width)
     {
-        _current = Instantiate(linePrefab);
-        _current.startColor = _current.endColor = color;
-        _current.startWidth = _current.endWidth = width;
-        _points.Clear();
-        _pending.Clear();
-    }
+        id: "ewova",
+        title: "VR多人連線專案",
+        tagline: "多人連線 VR 教育平台：畫筆同步、個人房間與寵物商店",
+        year: "\n",
+        role: "",
+        engine: "Unity · VR",
+        platforms: ["VR", "PC"],
+        tags: ["多人連線", "VR", "狀態同步"],
+        poster: project1,
+        videoFiles: [
+            { name: "畫圖功能", url: "/videos/ewova-1.mp4" },
+            { name: "畫圖同步", url: "/videos/ewova-2.mp4" },
+            { name: "造型切換", url: "/videos/ewova-3.mp4" },
+            { name: "伺服器世界選單", url: "/videos/ewova-4.mp4" },
+            { name: "寵物商店", url: "/videos/ewova-5.mp4" },
+            { name: "寵物功能", url: "/videos/ewova-6.mp4" },
+        ],
 
-    public void AddPoint(Vector3 worldPos)
-    {
-        if (_current == null) return;
-        if (_points.Count > 0 &&
-            Vector3.Distance(_points[^1], worldPos) < minPointDistance) return;
-
-        _points.Add(worldPos);
-        _pending.Add(worldPos);
-        _current.positionCount = _points.Count;
-        _current.SetPosition(_points.Count - 1, worldPos);
-
-        // 累積到一定數量才送出，降低封包次數
-        if (_pending.Count >= batchSize) FlushPending();
-    }
-
-    public void EndStroke()
-    {
-        FlushPending();
-        NetworkSender.SendStrokeEnd();
-        _current = null;
-    }
-
-    private void FlushPending()
-    {
-        if (_pending.Count == 0) return;
-        NetworkSender.SendStrokePoints(_pending.ToArray());
-        _pending.Clear();
-    }
-}`,
-      },
-      {
-        name: "PlayerRoomService.cs",
-        summary: "個人房間：房間資料存讀與物件擺放還原",
-        code: `using System.Collections.Generic;
-using UnityEngine;
-
-[System.Serializable]
-public class RoomItemData
-{
-    public string itemId;
-    public Vector3 position;
-    public Vector3 eulerAngles;
-}
-
-public class PlayerRoomService : MonoBehaviour
-{
-    [SerializeField] private Transform roomRoot;
-    private readonly Dictionary<string, GameObject> _catalog = new();
-
-    public void LoadRoom(List<RoomItemData> items)
-    {
-        foreach (Transform child in roomRoot) Destroy(child.gameObject);
-
-        foreach (var data in items)
-        {
-            if (!_catalog.TryGetValue(data.itemId, out var prefab)) continue;
-            var go = Instantiate(prefab, roomRoot);
-            go.transform.SetLocalPositionAndRotation(
-                data.position, Quaternion.Euler(data.eulerAngles));
-        }
-    }
-
-    public List<RoomItemData> CaptureRoom()
-    {
-        var result = new List<RoomItemData>();
-        foreach (Transform child in roomRoot)
-        {
-            var item = child.GetComponent<RoomItem>();
-            if (item == null) continue;
-            result.Add(new RoomItemData
+        overview:
+            "教育導向的多人連線VR專案，我負責核心多人連線功能的實作與整合，包含跨使用者的即時繪圖同步、個人房間系統，以及寵物與寵物商店的購買、選擇與交易流程。",
+        highlights: [
+            "獨立製作多人連線畫筆與筆畫即時同步，處理延遲補償與後進玩家的歷史筆畫重建",
+            "個人房間系統：房間資料存讀、角色造型切換、家具/物件擺放與跨場景載入",
+            "寵物系統與寵物商店：購買、選擇、交易與資料持久化",
+            "整合多人連線架構，統一玩家狀態、角色化身與場景同步流程",
+        ],
+        codeFiles: [
             {
-                itemId = item.ItemId,
-                position = child.localPosition,
-                eulerAngles = child.localEulerAngles,
-            });
+                name: "NetworkDrawingSync.cs",
+                summary: "多人即時筆觸同步",
+                code: `namespace VirtualSpace.NetworkDrawing
+{
+    using System.Collections;
+    using System.Collections.Generic;
+    using Photon.Pun;
+    using UnityEngine;
+
+    /// <summary>
+    /// 多人即時筆觸同步組件 
+    /// </summary>
+    [RequireComponent(typeof(PhotonView))]
+    public class NetworkDrawingSync : MonoBehaviourPun
+    {
+        [System.Serializable]
+        public class BufferedStroke
+        {
+            public int StrokeId;
+            public Color StrokeColor;
+            public float BrushSize;
+            public Vector3[] Points;
         }
-        return result;
+
+        [Header("Late-Joiner 歷史筆觸緩衝")]
+        private readonly List<BufferedStroke> m_lateJoinerBuffer = new();
+        private readonly Dictionary<int, LineRenderer> m_renderedStrokes = new();
+        private bool m_isReadyToRender = false;
+
+        private void Start()
+        {
+            // 延遲啟用以確保場景與本地 Avatar 實體完成就緒
+            StartCoroutine(InitSyncRoutine());
+        }
+
+        private IEnumerator InitSyncRoutine()
+        {
+            yield return new WaitForSeconds(0.5f);
+            m_isReadyToRender = true;
+
+            // 批次繪製進房前已收到的緩衝歷史筆觸
+            foreach (var stroke in m_lateJoinerBuffer)
+            {
+                RenderFullStroke(stroke);
+            }
+            m_lateJoinerBuffer.Clear();
+        }
+
+        /// <summary>
+        /// 本地完成筆觸後，透過 RPC 廣播至所有遠端客戶端 (支援後進玩家緩衝)
+        /// </summary>
+        public void BroadcastStroke(int strokeId, Color color, float size, Vector3[] points)
+        {
+            if (points == null || points.Length == 0) return;
+
+            photonView.RPC(
+                nameof(RPC_SyncStroke),
+                RpcTarget.OthersBuffered,
+                strokeId,
+                color.r,
+                color.g,
+                color.b,
+                color.a,
+                size,
+                points
+            );
+        }
+
+        /// <summary>
+        /// 接收遠端客戶端廣播之筆觸資料
+        /// </summary>
+        [PunRPC]
+        private void RPC_SyncStroke(int strokeId, float r, float g, float b, float a, float size, Vector3[] points)
+        {
+            var stroke = new BufferedStroke
+            {
+                StrokeId = strokeId,
+                StrokeColor = new Color(r, g, b, a),
+                BrushSize = size,
+                Points = points
+            };
+
+            // 若本地場景尚未初始化完成，先加入緩衝隊列
+            if (!m_isReadyToRender)
+            {
+                m_lateJoinerBuffer.Add(stroke);
+                return;
+            }
+
+            RenderFullStroke(stroke);
+        }
+
+        /// <summary>
+        /// 動態生成 LineRenderer 實體並賦予頂點資料
+        /// </summary>
+        private void RenderFullStroke(BufferedStroke stroke)
+        {
+            if (stroke.Points == null || stroke.Points.Length == 0) return;
+
+            GameObject lineObj = new GameObject($"NetworkStroke_{stroke.StrokeId}");
+            lineObj.transform.SetParent(transform);
+
+            var lineRenderer = lineObj.AddComponent<LineRenderer>();
+            lineRenderer.useWorldSpace = true;
+            lineRenderer.startWidth = stroke.BrushSize;
+            lineRenderer.endWidth = stroke.BrushSize;
+            lineRenderer.startColor = stroke.StrokeColor;
+            lineRenderer.endColor = stroke.StrokeColor;
+            lineRenderer.positionCount = stroke.Points.Length;
+            lineRenderer.SetPositions(stroke.Points);
+
+            m_renderedStrokes[stroke.StrokeId] = lineRenderer;
+        }
+
+        /// <summary>
+        /// 清空特定筆觸或整體畫布
+        /// </summary>
+        public void ClearAllStrokes()
+        {
+            foreach (var kvp in m_renderedStrokes)
+            {
+                if (kvp.Value != null)
+                {
+                    Destroy(kvp.Value.gameObject);
+                }
+            }
+            m_renderedStrokes.Clear();
+            m_lateJoinerBuffer.Clear();
+        }
     }
 }`,
-      },
-      {
-        name: "PetShopController.cs",
-        summary: "寵物商店：購買驗證、貨幣扣款與寵物切換",
-        code: `using System;
-using UnityEngine;
-
-public class PetShopController : MonoBehaviour
+            },
+            {
+                name: "PetShopManager.cs",
+                summary: "空間寵物商店",
+                code: `namespace VirtualSpace.ShopSystem
 {
-    [SerializeField] private PetDatabase database;
-    [SerializeField] private PetSpawner spawner;
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Threading;
+    using Cysharp.Threading.Tasks;
+    using UnityEngine;
 
-    public event Action<string> OnPurchaseFailed;
-    public event Action<PetData> OnPetEquipped;
-
-    public void TryBuy(string petId, PlayerWallet wallet, PlayerInventory inventory)
+    /// <summary>
+    /// 寵物商店管理器
+    /// </summary>
+    public class PetShopManager : MonoBehaviour
     {
-        var pet = database.Find(petId);
-        if (pet == null) { OnPurchaseFailed?.Invoke("找不到此寵物"); return; }
-        if (inventory.Has(petId)) { OnPurchaseFailed?.Invoke("已擁有此寵物"); return; }
-        if (!wallet.TrySpend(pet.price)) { OnPurchaseFailed?.Invoke("金幣不足"); return; }
+        [Header("寵物模型展示平台設定")]
+        [SerializeField] private Transform m_platformAnchor;
+        [SerializeField] private float m_modelSpacing = 1.2f;
+        [SerializeField] private int m_maxCartCapacity = 4;
 
-        inventory.Add(petId);
-        Equip(petId, inventory);
+        [Header("錢包設定")]
+        [SerializeField] private int m_currentWalletBalance = 1000;
+
+        private readonly List<ShopItemData> m_cartItems = new();
+        private readonly List<GameObject> m_spawnedModels = new();
+        private CancellationTokenSource m_cts;
+
+        public event Action<int> OnWalletBalanceChanged;
+        public event Action<int, int> OnCartCountChanged; // (當前數量, 最大容量)
+        public event Action<string> OnTransactionMessage;
+
+        private void Awake()
+        {
+            m_cts = new CancellationTokenSource();
+        }
+
+        private void Start()
+        {
+            OnWalletBalanceChanged?.Invoke(m_currentWalletBalance);
+            OnCartCountChanged?.Invoke(m_cartItems.Count, m_maxCartCapacity);
+        }
+
+        /// <summary>
+        /// 加入購物車並於平台動態生成模型與重新等距排版
+        /// </summary>
+        public void AddItemToCart(ShopItemData data, GameObject modelPrefab)
+        {
+            if (m_cartItems.Count >= m_maxCartCapacity)
+            {
+                OnTransactionMessage?.Invoke("購物車已達最大容量！");
+                return;
+            }
+
+            if (modelPrefab == null)
+            {
+                Debug.LogError($"[ShopManager] 找不到對應的 Prefab: {data.Name}");
+                return;
+            }
+
+            m_cartItems.Add(data);
+            GameObject spawnedModel = Instantiate(modelPrefab, m_platformAnchor);
+            m_spawnedModels.Add(spawnedModel);
+
+            UpdatePlatform3DLayout();
+            OnCartCountChanged?.Invoke(m_cartItems.Count, m_maxCartCapacity);
+        }
+
+        /// <summary>
+        /// 平台空間排列演算法
+        /// </summary>
+        private void UpdatePlatform3DLayout()
+        {
+            int count = m_spawnedModels.Count;
+            if (count == 0) return;
+
+            float totalWidth = (count - 1) * m_modelSpacing;
+            float startX = -totalWidth / 2f;
+
+            for (int i = 0; i < count; i++)
+            {
+                if (m_spawnedModels[i] == null) continue;
+
+                Vector3 targetLocalPos = new Vector3(startX + (i * m_modelSpacing), 0, 0);
+                m_spawnedModels[i].transform.localPosition = targetLocalPos;
+                m_spawnedModels[i].transform.localRotation = Quaternion.identity;
+            }
+        }
+
+        /// <summary>
+        /// 執行非同步批次結帳流程 
+        /// </summary>
+        public async UniTask CheckoutAsync()
+        {
+            int totalCost = m_cartItems.Sum(x => x.Price);
+
+            if (m_cartItems.Count == 0 || m_currentWalletBalance < totalCost)
+            {
+                OnTransactionMessage?.Invoke("餘額不足或購物車為空！");
+                return;
+            }
+
+            OnTransactionMessage?.Invoke("交易處理中...");
+
+            var pendingPurchases = new List<ShopItemData>(m_cartItems);
+            int successCount = 0;
+            List<string> failedItemNames = new();
+
+            //  逐項非同步購買 
+            foreach (var item in pendingPurchases)
+            {
+                bool isSuccess = await MockNetworkClient.PurchaseItemAsync(item.Id, m_cts.Token);
+                if (isSuccess)
+                {
+                    successCount++;
+                    m_currentWalletBalance -= item.Price;
+                    OnWalletBalanceChanged?.Invoke(m_currentWalletBalance);
+                }
+                else
+                {
+                    failedItemNames.Add(item.Name);
+                }
+            }
+
+            // 交易結果反饋與平台重置
+            ClearCart();
+
+            if (failedItemNames.Count == 0)
+            {
+                OnTransactionMessage?.Invoke($"成功購買 {successCount} 隻寵物！");
+            }
+            else
+            {
+                OnTransactionMessage?.Invoke($"部分商品購買失敗: {string.Join(", ", failedItemNames)}");
+            }
+        }
+
+        /// <summary>
+        /// 清空購物車與平台模型
+        /// </summary>
+        public void ClearCart()
+        {
+            foreach (var model in m_spawnedModels)
+            {
+                if (model != null) Destroy(model);
+            }
+            m_spawnedModels.Clear();
+            m_cartItems.Clear();
+            OnCartCountChanged?.Invoke(0, m_maxCartCapacity);
+        }
+
+        private void OnDestroy()
+        {
+            // 銷毀時安全中斷在途非同步請求
+            m_cts?.Cancel();
+            m_cts?.Dispose();
+        }
     }
 
-    public void Equip(string petId, PlayerInventory inventory)
+    /// <summary>
+    /// 商店商品資料實體
+    /// </summary>
+    [Serializable]
+    public class ShopItemData
     {
-        if (!inventory.Has(petId)) return;
-        var pet = database.Find(petId);
-        spawner.Spawn(pet);
-        OnPetEquipped?.Invoke(pet);
+        public string Id;
+        public string Name;
+        public int Price;
+
+        public ShopItemData(string id, string name, int price)
+        {
+            Id = id;
+            Name = name;
+            Price = price;
+        }
+    }
+
+    /// <summary>
+    /// 模擬後端非同步網絡服務
+    /// </summary>
+    public static class MockNetworkClient
+    {
+        public static async UniTask<bool> PurchaseItemAsync(string itemId, CancellationToken ct)
+        {
+            await UniTask.Delay(300, cancellationToken: ct);
+            return true;
+        }
+    }
+}`,
+            },
+            {
+                name: "MenuController.cs",
+                summary: "3D 空間弧形卡片輪播",
+                code: `namespace VirtualSpace.UI
+{
+    using System;
+    using System.Collections.Generic;
+    using UnityEngine;
+
+    /// <summary>
+    /// 3D 空間弧形卡片輪播控制器 
+    /// </summary>
+    public class MenuController : MonoBehaviour
+    {
+        [Serializable]
+        public struct CarouselSlot
+        {
+            [Tooltip("空間 Y 軸高度")]
+            public float YPosition;
+
+            [Tooltip("空間 Z 軸深度 (景深層次)")]
+            public float ZPosition;
+
+            [Tooltip("目標透明度 (0 ~ 1)")]
+            [Range(0f, 1f)]
+            public float CanvasAlpha;
+        }
+
+        [Header("3D 軌跡設定 (預設以索引 2 為中心點)")]
+        [SerializeField]
+        private CarouselSlot[] m_fixedSlots = new CarouselSlot[5]
+        {
+            new CarouselSlot { YPosition = -120f, ZPosition = 80f, CanvasAlpha = 0.3f },
+            new CarouselSlot { YPosition = -60f,  ZPosition = 40f, CanvasAlpha = 0.7f },
+            new CarouselSlot { YPosition = 0f,    ZPosition = 0f,  CanvasAlpha = 1.0f }, // 中心焦點槽位
+            new CarouselSlot { YPosition = 60f,   ZPosition = 40f, CanvasAlpha = 0.7f },
+            new CarouselSlot { YPosition = 120f,  ZPosition = 80f, CanvasAlpha = 0.3f }
+        };
+
+        [Header("平滑過渡動畫")]
+        [SerializeField]
+        [Range(1f, 30f)]
+        private float m_animationSpeed = 10f;
+
+        [Header("卡片清單")]
+        [SerializeField]
+        private List<MenuItemCard> m_currentCards = new();
+
+        private int m_currentFocusIndex = 0;
+
+        /// <summary>
+        /// 初始化卡片清單並綁定懸停事件
+        /// </summary>
+        public void SetupCards(List<MenuItemCard> cards)
+        {
+            m_currentCards = new List<MenuItemCard>(cards);
+            m_currentFocusIndex = 0;
+
+            foreach (var card in m_currentCards)
+            {
+                if (card == null) continue;
+                card.OnHoverAction -= OnCardHovered;
+                card.OnHoverAction += OnCardHovered;
+            }
+
+            if (m_currentCards.Count > 0)
+            {
+                UpdateHierarchySorting();
+            }
+        }
+
+        /// <summary>
+        /// 接收滑鼠或 VR 射線懸停事件，動態更新焦點卡片
+        /// </summary>
+        public void OnCardHovered(MenuItemCard hoveredCard)
+        {
+            int index = m_currentCards.IndexOf(hoveredCard);
+            if (index != -1 && index != m_currentFocusIndex)
+            {
+                m_currentFocusIndex = index;
+                UpdateHierarchySorting();
+            }
+        }
+
+        /// <summary>
+        /// 根據當前焦點更新 UI 渲染階層，避免前後遮擋穿模
+        /// </summary>
+        private void UpdateHierarchySorting()
+        {
+            for (int i = 0; i < m_currentCards.Count; i++)
+            {
+                var card = m_currentCards[i];
+                if (card == null) continue;
+
+                if (i == m_currentFocusIndex)
+                {
+                    card.transform.SetAsLastSibling(); // 焦點卡片置頂渲染
+                }
+                else
+                {
+                    card.transform.SetAsFirstSibling(); // 非焦點置底
+                }
+            }
+        }
+
+        private void Update()
+        {
+            if (m_currentCards == null || m_currentCards.Count == 0 || m_fixedSlots.Length != 5)
+                return;
+
+            float dt = Time.deltaTime * m_animationSpeed;
+
+            for (int i = 0; i < m_currentCards.Count; i++)
+            {
+                MenuItemCard card = m_currentCards[i];
+                if (card == null) continue;
+
+                Transform visualTransform = card.VisualTransform != null ? card.VisualTransform : card.transform;
+
+                // 計算相對於焦點卡片的偏移量 (中心槽位為 2)
+                int offset = i - m_currentFocusIndex;
+                int targetSlotIndex = 2 + offset;
+
+                // 超出 5 個可視槽位範圍則進行視錐剔除
+                if (targetSlotIndex < 0 || targetSlotIndex >= m_fixedSlots.Length)
+                {
+                    visualTransform.gameObject.SetActive(false);
+                    continue;
+                }
+
+                visualTransform.gameObject.SetActive(true);
+                CarouselSlot targetSlot = m_fixedSlots[targetSlotIndex];
+
+                // 平滑插值 3D 空間位置 (Y 軸高度與 Z 軸景深)
+                Vector3 currentPos = visualTransform.localPosition;
+                Vector3 targetPos = new Vector3(currentPos.x, targetSlot.YPosition, targetSlot.ZPosition);
+                visualTransform.localPosition = Vector3.Lerp(currentPos, targetPos, dt);
+
+                // 平滑插值 CanvasGroup 透明度
+                if (card.CanvasGroup != null)
+                {
+                    card.CanvasGroup.alpha = Mathf.Lerp(card.CanvasGroup.alpha, targetSlot.CanvasAlpha, dt);
+                }
+            }
+        }
+    }
+
+    /// <summary>
+    /// 卡片項目基類
+    /// </summary>
+    public class MenuItemCard : MonoBehaviour
+    {
+        public Transform VisualTransform;
+        public CanvasGroup CanvasGroup;
+        public Action<MenuItemCard> OnHoverAction;
+
+        public void TriggerHover() => OnHoverAction?.Invoke(this);
     }
 }`,
       },
@@ -209,7 +554,7 @@ public class PetShopController : MonoBehaviour
   },
   {
     id: "webgl-games",
-    title: "WebGL 網頁遊戲整合平台",
+    title: "WebGL網頁遊戲",
     tagline: "卡牌／問答／拼圖整合、後台 API 設定、網頁聲控遊戲",
     year: "\n",
     role: "Unity 工程師（主導開發）",
@@ -253,8 +598,7 @@ public class GameBootstrapper : MonoBehaviour
         loading.Show("載入設定中…");
 
         yield return config.FetchAsync(); // 後台 API
-        if (!config.IsReady)
-        {
+        if (!config.IsReady) {
             loading.ShowError("無法取得遊戲設定");
             yield break;
         }
@@ -272,14 +616,13 @@ public class GameBootstrapper : MonoBehaviour
         };
 
         var op = SceneManager.LoadSceneAsync(sceneName);
-        while (!op.isDone)
-        {
+        while (!op.isDone) {
             loading.SetProgress(op.progress);
             yield return null;
         }
         loading.Hide();
     }
-}`,
+} `,
       },
       {
         name: "RemoteConfigService.cs",
@@ -289,8 +632,7 @@ using UnityEngine;
 using UnityEngine.Networking;
 
 [System.Serializable]
-public class GameConfigDto
-{
+public class GameConfigDto {
     public string mode;
     public string language;
     public int timeLimit;
@@ -318,8 +660,7 @@ public class RemoteConfigService : MonoBehaviour
         req.timeout = 10;
         yield return req.SendWebRequest();
 
-        if (req.result != UnityWebRequest.Result.Success)
-        {
+        if (req.result != UnityWebRequest.Result.Success) {
             Debug.LogError($"[Config] {req.error}");
             IsReady = false;
             yield break;
@@ -328,7 +669,7 @@ public class RemoteConfigService : MonoBehaviour
         _dto = JsonUtility.FromJson<GameConfigDto>(req.downloadHandler.text);
         IsReady = _dto != null;
     }
-}`,
+} `,
       },
       {
         name: "VoiceInput.cs",
@@ -369,19 +710,19 @@ public class VoiceInput : MonoBehaviour
 
         Loudness = Mathf.Lerp(Loudness, rms, Time.deltaTime * smoothing);
     }
-}`,
+} `,
       },
     ],
   },
   {
     id: "udp-video-player",
-    title: "UDP 影片播放器控制工具",
+    title: "UDP 影片播放器",
     tagline: "展場多螢幕影片同步控制，外部硬體/軟體即時操作",
     year: "\n",
     role: "Unity 工程師（展場專案）",
     engine: "Unity · UDP Socket",
     platforms: ["Windows", "展場裝置"],
-    tags: ["UDP", "多螢幕", "\n", "\n"],
+    tags: ["UDP", "多螢幕"],
     poster: project3,
     videoFiles: [
       { name: "主要展示", url: "/videos/udp-player.mp4" },
@@ -412,12 +753,12 @@ public class UdpCommandReceiver : MonoBehaviour
 {
     [SerializeField] private int port = 8899;
 
-    public event Action<string> OnCommand;
+    public event Action < string > OnCommand;
 
     private UdpClient _client;
     private Thread _thread;
     private volatile bool _running;
-    private readonly ConcurrentQueue<string> _queue = new();
+    private readonly ConcurrentQueue < string > _queue = new ();
 
     private void Start()
     {
@@ -431,10 +772,8 @@ public class UdpCommandReceiver : MonoBehaviour
     private void ReceiveLoop()
     {
         var remote = new IPEndPoint(IPAddress.Any, 0);
-        while (_running)
-        {
-            try
-            {
+        while (_running) {
+            try {
                 var bytes = _client.Receive(ref remote);
                 _queue.Enqueue(Encoding.UTF8.GetString(bytes).Trim());
             }
@@ -453,7 +792,7 @@ public class UdpCommandReceiver : MonoBehaviour
         _client?.Close();
         _thread?.Join(200);
     }
-}`,
+} `,
       },
       {
         name: "VideoCommandHandler.cs",
@@ -482,8 +821,7 @@ public class VideoCommandHandler : MonoBehaviour
 
         var value = parts.Length > 2 ? parts[2] : string.Empty;
 
-        switch (parts[1].ToUpperInvariant())
-        {
+        switch (parts[1].ToUpperInvariant()) {
             case "PLAY": player.Play(); break;
             case "PAUSE": player.Pause(); break;
             case "STOP":
@@ -503,7 +841,7 @@ public class VideoCommandHandler : MonoBehaviour
                 break;
         }
     }
-}`,
+} `,
       },
     ],
   },
@@ -581,20 +919,19 @@ public class DiscSwapSystem : MonoBehaviour
         }
         t.position = to;
 
-        if (body != null)
-        {
+        if (body != null) {
             body.isKinematic = false;
             body.linearVelocity = Vector3.zero;
         }
     }
-}`,
+} `,
       },
       {
         name: "GravityDevice.cs",
         summary: "引力裝置：範圍內物件受吸引力並可反轉重力",
         code: `using UnityEngine;
 
-[RequireComponent(typeof(SphereCollider))]
+[RequireComponent(typeof (SphereCollider))]
 public class GravityDevice : MonoBehaviour
 {
     [SerializeField] private float force = 25f;
@@ -619,12 +956,12 @@ public class GravityDevice : MonoBehaviour
         var t = Mathf.Clamp01(offset.magnitude / _area.radius);
         var strength = force * falloff.Evaluate(t);
 
-        var dir = offset.normalized * (repel ? -1f : 1f);
+        var dir = offset.normalized * (repel ? -1f: 1f);
         body.AddForce(dir * strength, ForceMode.Acceleration);
     }
 
     public void Toggle() => repel = !repel;
-}`,
+} `,
       },
       {
         name: "Portal.cs",
@@ -658,7 +995,7 @@ public class Portal : MonoBehaviour
         body.linearVelocity = exit.TransformDirection(localVelocity);
         body.transform.rotation = exit.rotation;
     }
-}`,
+} `,
       },
     ],
   },
@@ -692,8 +1029,7 @@ public class Portal : MonoBehaviour
 using UnityEngine;
 
 [System.Serializable]
-public class CardOutcome
-{
+public class CardOutcome {
     public string label;
     public int money;      // 正數加分、負數扣分
     public float weight = 1f;
@@ -701,15 +1037,15 @@ public class CardOutcome
 
 public class CardDrawManager : MonoBehaviour
 {
-    [SerializeField] private List<CardOutcome> pool = new();
+    [SerializeField] private List < CardOutcome > pool = new ();
     [SerializeField] private CardView[] cards = new CardView[4];
 
     public int Money { get; private set; }
 
     public void Deal()
     {
-        foreach (var card in cards)
-            card.Set(Roll());
+        foreach(var card in cards)
+        card.Set(Roll());
     }
 
     public void Reveal(int index)
@@ -723,29 +1059,29 @@ public class CardDrawManager : MonoBehaviour
     private CardOutcome Roll()
     {
         float total = 0f;
-        foreach (var o in pool) total += o.weight;
+        foreach(var o in pool) total += o.weight;
 
         var pick = Random.Range(0f, total);
-        foreach (var o in pool)
+        foreach(var o in pool)
         {
             pick -= o.weight;
             if (pick <= 0f) return o;
         }
-        return pool[^1];
+        return pool[^ 1];
     }
-}`,
+} `,
       },
     ],
   },
   {
     id: "ar-vr-proposal",
-    title: "互動式產品提案（AR / VR）",
+    title: "互動式產品介紹（AR / VR）",
     tagline: "B2B 商務提案用的 AR、VR 產品介紹原型",
     year: "2024–2026",
     role: "Unity 工程師（原型開發）",
     engine: "Unity · AR Foundation",
     platforms: ["Android APK", "VR"],
-    tags: ["AR", "VR", "\n", "Android"],
+    tags: ["AR", "VR", "Android"],
     poster: project3,
     videoFiles: [
       { name: "主要展示", url: "/videos/ar-proposal.mp4" },
@@ -769,13 +1105,13 @@ using UnityEngine;
 using UnityEngine.XR.ARFoundation;
 using UnityEngine.XR.ARSubsystems;
 
-[RequireComponent(typeof(ARRaycastManager))]
+[RequireComponent(typeof (ARRaycastManager))]
 public class ARProductPlacer : MonoBehaviour
 {
     [SerializeField] private GameObject productPrefab;
 
     private ARRaycastManager _raycaster;
-    private readonly List<ARRaycastHit> _hits = new();
+    private readonly List < ARRaycastHit > _hits = new ();
     private GameObject _instance;
 
     private void Awake() => _raycaster = GetComponent<ARRaycastManager>();
@@ -795,7 +1131,7 @@ public class ARProductPlacer : MonoBehaviour
         else
             _instance.transform.SetPositionAndRotation(pose.position, pose.rotation);
     }
-}`,
+} `,
       },
       {
         name: "ProductHotspot.cs",
@@ -803,8 +1139,7 @@ public class ARProductPlacer : MonoBehaviour
         code: `using UnityEngine;
 
 [System.Serializable]
-public class HotspotData
-{
+public class HotspotData {
     public string id;
     public string title;
     [TextArea] public string description;
@@ -820,7 +1155,7 @@ public class ProductHotspot : MonoBehaviour
 
     private void Start()
     {
-        foreach (var data in config.hotspots)
+        foreach(var data in config.hotspots)
         {
             var marker = Instantiate(markerPrefab, anchorRoot);
             marker.transform.localPosition = data.localPosition;
@@ -829,7 +1164,7 @@ public class ProductHotspot : MonoBehaviour
     }
 
     private void Show(HotspotData data) => panel.Show(data.title, data.description);
-}`,
+} `,
       },
     ],
   },
