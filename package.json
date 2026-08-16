@@ -7,6 +7,7 @@
     "dev": "vite dev",
     "build": "vite build",
     "build:html": "vite build --config vite.config.spa.ts",
+    "deploy": "vite build --config vite.config.spa.ts && gh-pages -d dist",
     "preview:html": "vite preview --config vite.config.spa.ts",
     "build:dev": "vite build --mode development",
     "preview": "vite preview",
