@@ -23,7 +23,17 @@ export function ProjectMedia({
 }: Props) {
   const [failed, setFailed] = useState(false);
 
-  if (!videoUrl || failed) {
+  const resolveUrl = (url?: string) => {
+    if (!url) return undefined;
+    if (url.startsWith("http://") || url.startsWith("https://") || url.startsWith("blob:")) return url;
+    const cleanPath = url.replace(/^\/+/, "");
+    const base = import.meta.env.BASE_URL || "./";
+    return `${base.replace(/\/+$/, "")}/${cleanPath}`;
+  };
+
+  const finalVideoUrl = resolveUrl(videoUrl);
+
+  if (!finalVideoUrl || failed) {
     return (
       <div className={`relative ${className}`}>
         <img
@@ -37,7 +47,7 @@ export function ProjectMedia({
         {controls && (
           <div className="absolute bottom-3 left-3 flex items-center gap-2 rounded-sm bg-background/80 px-3 py-1.5 font-mono text-xs text-muted-foreground backdrop-blur">
             <Film className="h-3.5 w-3.5" />
-            將影片放入 public{videoUrl ?? "/videos/demo.mp4"} 即會自動播放
+            將影片放入 public/{videoUrl?.replace(/^\/+/, "") ?? "videos/demo.mp4"} 即會自動播放
           </div>
         )}
       </div>
@@ -46,7 +56,7 @@ export function ProjectMedia({
 
   return (
     <video
-      src={videoUrl}
+      src={finalVideoUrl}
       poster={poster}
       controls={controls}
       autoPlay={autoPlay}
