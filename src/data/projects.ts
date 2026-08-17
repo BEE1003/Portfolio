@@ -16,7 +16,7 @@ export type VideoFile = {
     name: string;
     /** 這段影片展示的功能說明 */
     summary?: string;
-    /** 放置在 public/videos/ 的影片檔，例如 /videos/ewova.mp4 */
+    /** 放置在 public/videos/ 的影片檔，例如 /videos/multiverse.mp4 */
     url: string;
 };
 
@@ -39,7 +39,7 @@ export type Project = {
 
 export const projects: Project[] = [
     {
-        id: "ewova",
+        id: "multiverse",
         title: "VR多人連線專案",
         tagline: "多人連線 VR 教育平台：畫筆同步、個人房間與寵物商店",
         year: "\n",
@@ -49,12 +49,12 @@ export const projects: Project[] = [
         tags: ["多人連線", "VR", "狀態同步"],
         poster: project1,
         videoFiles: [
-            { name: "畫圖功能", url: "/videos/ewova-1.mp4" },
-            { name: "畫圖同步", url: "/videos/ewova-2.mp4" },
-            { name: "造型切換", url: "/videos/ewova-3.mp4" },
-            { name: "伺服器世界選單", url: "/videos/ewova-4.mp4" },
-            { name: "寵物商店", url: "/videos/ewova-5.mp4" },
-            { name: "寵物功能", url: "/videos/ewova-6.mp4" },
+            { name: "畫圖功能", url: "/videos/multiverse-1.mp4" },
+            { name: "畫圖同步", url: "/videos/multiverse-2.mp4" },
+            { name: "造型切換", url: "/videos/multiverse-3.mp4" },
+            { name: "伺服器世界選單", url: "/videos/multiverse-4.mp4" },
+            { name: "寵物商店", url: "/videos/multiverse-5.mp4" },
+            { name: "寵物功能", url: "/videos/multiverse-6.mp4" },
         ],
 
         overview:
