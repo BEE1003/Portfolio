@@ -22,7 +22,7 @@ export function Avatar({
       aria-label={alt}
     >
       {src ? (
-        <img src={src} alt={alt} className="h-full w-full object-cover" />
+        <img src={src} alt={alt} className="h-full w-full object-cover [image-rendering:high-quality]" />
       ) : (
         <span className="font-display font-medium">{fallback}</span>
       )}
