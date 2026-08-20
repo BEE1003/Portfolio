@@ -32,6 +32,8 @@ export type Project = {
     platforms: string[];
     tags: string[];
     poster?: string;
+    /** 作品集卡片封面圖，設定後卡片只顯示靜態圖不播影片 */
+    cardPoster?: string;
     /** 多個功能影片，可在詳細視窗中切換播放 */
     videoFiles?: VideoFile[];
     overview: string;
@@ -934,6 +936,7 @@ public static class PlayerPrefsGameState
     platforms: ["PC"],
     tags: ["UDP", "多螢幕"],
     poster: "/media/udp/UDPCtrl.jpg",
+    cardPoster: "/media/udp/UDPCtrl.jpg",
     videoFiles: [
       { name: "設定介面", url: "/media/udp/UDPSet.jpg", type: "image" },
       { name: "控制介面", url: "/media/udp/UDPCtrl.jpg", type: "image" },
