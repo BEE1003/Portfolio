@@ -194,7 +194,7 @@ export function Index() {
                   <div className={`overflow-hidden ${i === 0 ? "aspect-video md:aspect-[21/9]" : "aspect-video"}`}>
                     <ProjectMedia
                       poster={p.poster}
-                      videoUrl={p.videoFiles?.[0]?.url}
+                      videoUrl={p.videoFiles?.find(v => !v.type)?.url}
                       title={p.title}
                       autoPlay
                       className="h-full w-full transition-transform duration-700 group-hover:scale-[1.02]"
