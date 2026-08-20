@@ -35,7 +35,7 @@ export function ProjectDialog({
             <div className="relative aspect-video w-full overflow-hidden bg-code-bg">
               <ProjectMedia
                 key={activeVideo?.url ?? project.poster}
-                poster={project.poster}
+                poster={activeVideo?.poster ?? project.poster}
                 videoUrl={activeVideo?.url}
                 mediaType={activeVideo?.type}
                 title={project.title}

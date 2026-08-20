@@ -18,6 +18,8 @@ export type VideoFile = {
     url: string;
     /** 圖片與 YouTube 素材會在專案詳情中以對應播放器顯示。 */
     type?: "image" | "youtube";
+    /** 影片播放前顯示的預覽封面圖路徑 */
+    poster?: string;
 };
 
 export type Project = {
@@ -935,7 +937,7 @@ public static class PlayerPrefsGameState
     videoFiles: [
       { name: "設定介面", url: "/media/udp/UDPSet.jpg", type: "image" },
       { name: "控制介面", url: "/media/udp/UDPCtrl.jpg", type: "image" },
-      { name: "影片播放", url: "https://pub-86a877e9ebff4295a5208769f38aa96e.r2.dev/UDP.mp4" },
+      { name: "影片播放", url: "https://pub-86a877e9ebff4295a5208769f38aa96e.r2.dev/UDP.mp4", poster: "/media/udp/UDPCtrl.jpg" },
     ],
     overview:
       "為展場互動專案開發的影片播放器工具，透過 UDP 協定接收外部硬體或控制軟體的指令，控制個別螢幕的播放／暫停／停止，達成多機播放個別影片的即時同步與高效流暢控制。",
