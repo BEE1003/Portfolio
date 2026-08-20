@@ -957,7 +957,7 @@ public static class PlayerPrefsGameState
     tagline: "畢業專題：飛盤換位解謎平台遊戲",
     year: "2022/11–2023/6",
     role: "",
-    engine: "Unity2D",
+    engine: "Unity · 2D",
     platforms: ["PC"],
     tags: ["解謎", "關卡設計", "平台跳躍"],
     poster: "",
