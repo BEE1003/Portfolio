@@ -6,6 +6,7 @@ import { projects, type Project } from "@/data/projects";
 import { ProjectMedia } from "@/components/ProjectMedia";
 import { ProjectDialog } from "@/components/ProjectDialog";
 import { Avatar } from "@/components/Avatar";
+import avatarImg from "@/assets/avatar.jpg";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -62,7 +63,7 @@ export function Index() {
         {/* Hero */}
         <section className="relative flex min-h-[90vh] flex-col items-center justify-center px-4 sm:px-6 pt-16 pb-16 text-center">
           <div className="mx-auto max-w-2xl">
-            <Avatar alt="黃大峰" fallback="黃" size="xl" />
+            <Avatar src={avatarImg} alt="黃大峰" fallback="黃" size="xl" />
             <p className="section-label mt-10 text-sm sm:text-base tracking-[0.25em]">Unity Engineer</p>
             <h1 className="mt-5 text-4xl font-bold tracking-tight sm:text-5xl">
               黃大峰

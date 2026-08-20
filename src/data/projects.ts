@@ -1,6 +1,4 @@
-import project1 from "@/assets/project-1.jpg";
-import project2 from "@/assets/project-2.jpg";
-import project3 from "@/assets/project-3.jpg";
+
 
 
 export type CodeFile = {
@@ -31,7 +29,7 @@ export type Project = {
     engine: string;
     platforms: string[];
     tags: string[];
-    poster: string;
+    poster?: string;
     /** 多個功能影片，可在詳細視窗中切換播放 */
     videoFiles?: VideoFile[];
     overview: string;
@@ -49,7 +47,7 @@ export const projects: Project[] = [
         engine: "Unity · VR",
         platforms: ["VR", "PC"],
         tags: ["多人連線", "VR", "狀態同步"],
-        poster: project1,
+        poster: "",
         videoFiles: [
             { name: "畫圖功能", url: "https://pub-86a877e9ebff4295a5208769f38aa96e.r2.dev/multiverse-1.mp4" },
             { name: "畫圖同步", url: "https://pub-86a877e9ebff4295a5208769f38aa96e.r2.dev/multiverse-2.mp4" },
@@ -563,7 +561,7 @@ export const projects: Project[] = [
     engine: "Unity · WebGL",
     platforms: ["WebGL", "PC"],
     tags: ["WebGL", "API 串接", "多語系", "資料載入"],
-    poster: project2,
+    poster: "",
     videoFiles: [
       { name: "卡牌遊戲", url: "https://pub-86a877e9ebff4295a5208769f38aa96e.r2.dev/card-game.mp4" },
       { name: "拼圖遊戲", url: "https://pub-86a877e9ebff4295a5208769f38aa96e.r2.dev/puzzle-game.mp4" },
@@ -957,7 +955,7 @@ public static class PlayerPrefsGameState
     engine: "Unity2D",
     platforms: ["PC"],
     tags: ["解謎", "關卡設計", "平台跳躍"],
-    poster: project1,
+    poster: "",
     videoFiles: [
       { name: "遊戲展示", url: "https://pub-86a877e9ebff4295a5208769f38aa96e.r2.dev/space-dog.mp4" },
     ],
@@ -979,7 +977,7 @@ public static class PlayerPrefsGameState
     engine: "Unity · VR",
     platforms: ["VR"],
     tags: ["VR", "隨機抽牌", "互動"],
-    poster: project2,
+    poster: "",
     videoFiles: [
       { name: "主要展示", url: "https://pub-86a877e9ebff4295a5208769f38aa96e.r2.dev/vr-card.mp4" },
     ],
@@ -1001,7 +999,7 @@ public static class PlayerPrefsGameState
     engine: "Unity · AR Foundation",
     platforms: ["Android APK", "VR"],
     tags: ["AR", "VR", "Android"],
-    poster: project3,
+    poster: "",
     videoFiles: [
       { name: "AR 展示", url: "https://pub-86a877e9ebff4295a5208769f38aa96e.r2.dev/AR.mp4" },
       { name: "VR 展示", url: "https://pub-86a877e9ebff4295a5208769f38aa96e.r2.dev/VR.mp4" },

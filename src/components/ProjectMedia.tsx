@@ -3,7 +3,7 @@ import { Film } from "lucide-react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 
 type Props = {
-  poster: string;
+  poster?: string;
   videoUrl?: string | undefined;
   mediaType?: "image" | "youtube" | undefined;
   title: string;
@@ -94,15 +94,17 @@ export function ProjectMedia({
 
   if (!finalVideoUrl || failed) {
     return (
-      <div className={`relative ${className}`}>
-        <img
-          src={finalPosterUrl}
-          alt={`${title} 遊戲畫面`}
-          loading="lazy"
-          width={1280}
-          height={720}
-          className="h-full w-full object-cover"
-        />
+      <div className={`relative bg-black ${className}`}>
+        {!failed && (
+          <img
+            src={finalPosterUrl}
+            alt={`${title} 遊戲畫面`}
+            loading="lazy"
+            width={1280}
+            height={720}
+            className="h-full w-full object-cover"
+          />
+        )}
         {controls && (
           <div className="absolute bottom-3 left-3 flex items-center gap-2 rounded-sm bg-background/80 px-3 py-1.5 font-mono text-xs text-muted-foreground backdrop-blur">
             <Film className="h-3.5 w-3.5" />
@@ -124,7 +126,7 @@ export function ProjectMedia({
       playsInline
       preload="metadata"
       onError={() => setFailed(true)}
-      className={`h-full w-full object-cover ${className}`}
+      className={`h-full w-full bg-black object-cover ${className}`}
     />
   );
 }
