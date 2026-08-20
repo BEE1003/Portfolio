@@ -9,7 +9,7 @@ export default defineConfig({
     react(),
     tsconfigPaths(),
   ],
-  base: "./",
+  base: "/Portfolio/",
   build: {
     outDir: "dist",
     emptyOutDir: true,

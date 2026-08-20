@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { ArrowUpRight, GraduationCap, Mail } from "lucide-react";
+import { ArrowUpRight, Mail, Send, CheckCircle, XCircle, Loader2 } from "lucide-react";
+import emailjs from "@emailjs/browser";
 import { projects, type Project } from "@/data/projects";
 import { ProjectMedia } from "@/components/ProjectMedia";
 import { ProjectDialog } from "@/components/ProjectDialog";
@@ -33,15 +34,17 @@ export const Route = createFileRoute("/")({
 
 export function Index() {
   const [active, setActive] = useState<Project | null>(null);
+  const [sendStatus, setSendStatus] = useState<"idle" | "sending" | "success" | "error">("idle");
+  const formRef = useRef<HTMLFormElement>(null);
 
   return (
     <div className="min-h-screen bg-background">
       <header className="fixed inset-x-0 top-0 z-40 border-b border-border bg-background/90 backdrop-blur">
-        <nav className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
-          <a href="#top" className="font-mono text-sm font-semibold tracking-[0.2em] text-foreground">
+        <nav className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3 sm:px-6 sm:py-4">
+          <a href="#top" className="font-mono text-xs sm:text-sm font-semibold tracking-[0.2em] text-foreground">
             TF.HUANG
           </a>
-          <div className="flex items-center gap-8 font-mono text-sm text-foreground/80">
+          <div className="flex items-center gap-4 sm:gap-8 font-mono text-xs sm:text-sm text-foreground/80">
             <a href="#about" className="transition-colors hover:text-foreground">
               ABOUT
             </a>
@@ -57,23 +60,23 @@ export function Index() {
 
       <main id="top">
         {/* Hero */}
-        <section className="relative flex min-h-[90vh] flex-col items-center justify-center px-6 pt-24 pb-16 text-center">
+        <section className="relative flex min-h-[90vh] flex-col items-center justify-center px-4 sm:px-6 pt-16 pb-16 text-center">
           <div className="mx-auto max-w-2xl">
             <Avatar alt="黃大峰" fallback="黃" size="xl" />
-            <p className="section-label mt-10">Unity Engineer</p>
+            <p className="section-label mt-10 text-sm sm:text-base tracking-[0.25em]">Unity Engineer</p>
             <h1 className="mt-5 text-4xl font-bold tracking-tight sm:text-5xl">
               黃大峰
             </h1>
             <p className="mt-5 text-base sm:text-lg leading-relaxed text-muted-foreground">
               Unity 工程師，具 VR / AR、WebGL 網頁遊戲、多人連線與後台 API 串接開發經驗，
-              熟悉 Android APK 打包與 Git 版控。下方每個專案都附上實機影片、實作細節與關鍵程式碼。
+              熟悉 Android APK 打包與 Git 版控。下方每個專案都附上實機影片與實作細節。
             </p>
-            <div className="mt-8 flex flex-wrap justify-center gap-3">
+            <div className="mt-8 flex flex-wrap justify-center gap-4">
               <Button
                 asChild
                 size="lg"
                 variant="outline"
-                className="cursor-pointer font-mono text-sm tracking-wider hover:border-primary hover:bg-primary hover:text-primary-foreground"
+                className="cursor-pointer font-mono text-base sm:text-lg tracking-wider px-8 py-6 hover:border-primary hover:bg-primary hover:text-primary-foreground"
               >
                 <a href="#work">檢視作品集</a>
               </Button>
@@ -81,7 +84,7 @@ export function Index() {
                 asChild
                 size="lg"
                 variant="outline"
-                className="cursor-pointer font-mono text-sm tracking-wider"
+                className="cursor-pointer font-mono text-base sm:text-lg tracking-wider px-8 py-6"
               >
                 <a href="#contact">聯絡我</a>
               </Button>
@@ -174,7 +177,7 @@ export function Index() {
             <p className="section-label">Selected Work</p>
             <h2 className="mt-4 text-2xl sm:text-3xl font-bold tracking-tight">作品集</h2>
             <p className="mt-3 max-w-lg text-sm sm:text-base text-muted-foreground">
-              點擊任一專案，開啟詳細內容視窗：實機影片、技術重點與程式碼。
+              點擊任一專案，觀看實機影片與技術重點。
             </p>
 
             <div className="mt-12 grid gap-5 md:grid-cols-2">
@@ -187,7 +190,7 @@ export function Index() {
                     i === 0 ? "md:col-span-2" : ""
                   }`}
                 >
-                  <div className={`overflow-hidden ${i === 0 ? "aspect-[21/9]" : "aspect-video"}`}>
+                  <div className={`overflow-hidden ${i === 0 ? "aspect-video md:aspect-[21/9]" : "aspect-video"}`}>
                     <ProjectMedia
                       poster={p.poster}
                       videoUrl={p.videoFiles?.[0]?.url}
@@ -232,10 +235,26 @@ export function Index() {
             </div>
 
             <form
+              ref={formRef}
               className="space-y-4 border border-border bg-card/95 p-6 rounded-xl shadow-[0_0_0_1px_color-mix(in_oklab,var(--primary)_10%,transparent)]"
-              onSubmit={(e) => {
+              onSubmit={async (e) => {
                 e.preventDefault();
-                window.location.href = "mailto:bee881003@gmail.com";
+                if (sendStatus === "sending") return;
+                setSendStatus("sending");
+                try {
+                  await emailjs.sendForm(
+                    "service_pcu5bbr",
+                    "template_azkkbt1",
+                    formRef.current!,
+                    { publicKey: "3PzDvOGNA0Gxrm-_s" }
+                  );
+                  setSendStatus("success");
+                  formRef.current?.reset();
+                  setTimeout(() => setSendStatus("idle"), 4000);
+                } catch {
+                  setSendStatus("error");
+                  setTimeout(() => setSendStatus("idle"), 4000);
+                }
               }}
             >
               <div className="grid gap-4 sm:grid-cols-2">
@@ -243,23 +262,30 @@ export function Index() {
                   <label htmlFor="name" className="font-mono text-xs sm:text-sm font-medium text-muted-foreground">
                     NAME
                   </label>
-                  <Input id="name" required placeholder="你的名字" className="text-sm sm:text-base" />
+                  <Input id="name" name="from_name" required placeholder="你的名字" className="text-sm sm:text-base" />
                 </div>
                 <div className="space-y-2">
                   <label htmlFor="email" className="font-mono text-xs sm:text-sm font-medium text-muted-foreground">
                     EMAIL
                   </label>
-                  <Input id="email" type="email" required placeholder="you@studio.com" className="text-sm sm:text-base" />
+                  <Input id="email" name="from_email" type="email" required placeholder="you@studio.com" className="text-sm sm:text-base" />
                 </div>
               </div>
               <div className="space-y-2">
                 <label htmlFor="message" className="font-mono text-xs sm:text-sm font-medium text-muted-foreground">
                   MESSAGE
                 </label>
-                <Textarea id="message" required rows={6} placeholder="想聊聊的內容…" className="text-sm sm:text-base" />
+                <Textarea id="message" name="message" required rows={6} placeholder="想聊聊的內容…" className="text-sm sm:text-base" />
               </div>
-              <Button type="submit" className="w-full cursor-pointer font-mono text-sm tracking-wider py-2.5">
-                送出訊息
+              <Button
+                type="submit"
+                disabled={sendStatus === "sending" || sendStatus === "success"}
+                className="w-full cursor-pointer font-mono text-sm tracking-wider py-2.5 flex items-center justify-center gap-2"
+              >
+                {sendStatus === "idle" && <><Send className="h-4 w-4" />送出訊息</>}
+                {sendStatus === "sending" && <><Loader2 className="h-4 w-4 animate-spin" />傳送中…</>}
+                {sendStatus === "success" && <><CheckCircle className="h-4 w-4" />已送出！</>}
+                {sendStatus === "error" && <><XCircle className="h-4 w-4" />傳送失敗，請再試一次</>}
               </Button>
             </form>
           </div>
@@ -268,7 +294,7 @@ export function Index() {
 
       <footer className="border-t border-border py-8">
         <div className="mx-auto max-w-5xl px-6 font-mono text-xs sm:text-sm text-muted-foreground">
-          © {new Date().getFullYear()} 黃大峰 Huang Ta-Feng — Unity Engineer.
+          Huang Ta-Feng — Unity Engineer.
         </div>
       </footer>
 

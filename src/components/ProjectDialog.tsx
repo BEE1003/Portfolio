@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Code2, Layers, Cpu, Monitor, FileCode } from "lucide-react";
+import { Code2, Layers, Cpu, Monitor, FileCode, X } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { ProjectMedia } from "@/components/ProjectMedia";
@@ -28,20 +28,30 @@ export function ProjectDialog({
 
   return (
     <Dialog open={!!project} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[92vh] max-w-4xl overflow-y-auto border-border/80 bg-popover/95 p-0 shadow-2xl backdrop-blur-md">
+      <DialogContent className="max-h-[92vh] w-full max-w-4xl overflow-y-auto border-border/80 bg-popover/95 p-0 shadow-2xl backdrop-blur-md sm:w-[95vw] [&>button:last-child]:hidden">
         {project && (
           <div className="flex flex-col">
-            {/* 影片 / 圖片展示區 */}
-            <div className="aspect-video w-full overflow-hidden bg-code-bg">
+            {/* 影片 / 圖片展示區（含右上角關閉按鈕） */}
+            <div className="relative aspect-video w-full overflow-hidden bg-code-bg">
               <ProjectMedia
                 key={activeVideo?.url ?? project.poster}
                 poster={project.poster}
                 videoUrl={activeVideo?.url}
+                mediaType={activeVideo?.type}
                 title={project.title}
                 controls
                 autoPlay
                 className="h-full w-full"
               />
+              {/* 圓圈關閉按鈕 — 影片右上角 */}
+              <button
+                type="button"
+                aria-label="關閉"
+                onClick={() => onOpenChange(false)}
+                className="absolute right-3 top-3 z-10 flex h-9 w-9 items-center justify-center rounded-full bg-black/60 text-white backdrop-blur-sm transition-colors hover:bg-black/80"
+              >
+                <X className="h-5 w-5" />
+              </button>
             </div>
 
             {/* 多影片切換清單 */}
@@ -206,6 +216,18 @@ export function ProjectDialog({
                     #{t}
                   </Badge>
                 ))}
+              </div>
+
+              {/* 手機底部關閉按鈕 */}
+              <div className="sm:hidden border-t border-border/60 pt-4 pb-2 flex justify-center">
+                <button
+                  type="button"
+                  onClick={() => onOpenChange(false)}
+                  className="flex items-center gap-2 rounded-full border border-border/80 bg-card/80 px-8 py-3 font-mono text-sm font-medium text-foreground/80 hover:border-primary/60 hover:text-foreground transition-colors"
+                >
+                  <X className="h-4 w-4" />
+                  關閉視窗
+                </button>
               </div>
             </div>
           </div>

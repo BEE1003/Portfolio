@@ -18,6 +18,8 @@ export type VideoFile = {
     summary?: string;
     /** 放置在 public/videos/ 的影片檔，例如 /videos/multiverse.mp4 */
     url: string;
+    /** 圖片與 YouTube 素材會在專案詳情中以對應播放器顯示。 */
+    type?: "image" | "youtube";
 };
 
 export type Project = {
@@ -49,12 +51,12 @@ export const projects: Project[] = [
         tags: ["多人連線", "VR", "狀態同步"],
         poster: project1,
         videoFiles: [
-            { name: "畫圖功能", url: "/videos/multiverse-1.mp4" },
-            { name: "畫圖同步", url: "/videos/multiverse-2.mp4" },
-            { name: "造型切換", url: "/videos/multiverse-3.mp4" },
-            { name: "伺服器世界選單", url: "/videos/multiverse-4.mp4" },
-            { name: "寵物商店", url: "/videos/multiverse-5.mp4" },
-            { name: "寵物功能", url: "/videos/multiverse-6.mp4" },
+            { name: "畫圖功能", url: "https://pub-86a877e9ebff4295a5208769f38aa96e.r2.dev/multiverse-1.mp4" },
+            { name: "畫圖同步", url: "https://pub-86a877e9ebff4295a5208769f38aa96e.r2.dev/multiverse-2.mp4" },
+            { name: "造型切換", url: "https://pub-86a877e9ebff4295a5208769f38aa96e.r2.dev/multiverse-3.mp4" },
+            { name: "伺服器世界選單", url: "https://pub-86a877e9ebff4295a5208769f38aa96e.r2.dev/multiverse-4.mp4" },
+            { name: "寵物商店", url: "https://pub-86a877e9ebff4295a5208769f38aa96e.r2.dev/multiverse-5.mp4" },
+            { name: "寵物功能", url: "https://pub-86a877e9ebff4295a5208769f38aa96e.r2.dev/multiverse-6.mp4" },
         ],
 
         overview:
@@ -555,160 +557,368 @@ export const projects: Project[] = [
   {
     id: "webgl-games",
     title: "WebGL網頁遊戲",
-    tagline: "卡牌／問答／拼圖整合、後台 API 設定、網頁聲控遊戲",
+    tagline: "卡牌／問答／拼圖整合、後台 API 設定、多語系框架",
     year: "\n",
-    role: "Unity 工程師（主導開發）",
+    role: "",
     engine: "Unity · WebGL",
-    platforms: ["WebGL", "瀏覽器"],
-    tags: ["WebGL", "API 串接", "多語系", "JS Interop"],
+    platforms: ["WebGL", "PC"],
+    tags: ["WebGL", "API 串接", "多語系", "資料載入"],
     poster: project2,
     videoFiles: [
-      { name: "主要展示", url: "/videos/webgl.mp4" },
-      { name: "卡牌遊戲", url: "/videos/webgl-card.mp4" },
-      { name: "問答遊戲", url: "/videos/webgl-quiz.mp4" },
-      { name: "聲控玩法", url: "/videos/webgl-voice.mp4" },
+      { name: "卡牌遊戲", url: "https://pub-86a877e9ebff4295a5208769f38aa96e.r2.dev/card-game.mp4" },
+      { name: "拼圖遊戲", url: "https://pub-86a877e9ebff4295a5208769f38aa96e.r2.dev/puzzle-game.mp4" },
+      { name: "問答遊戲後台模式", url: "https://pub-86a877e9ebff4295a5208769f38aa96e.r2.dev/quiz-game.mp4" },
+      { name: "問答遊戲後台設定", url: "/media/webgl/quiz-admin-settings.png", type: "image" },
+      { name: "獎勵資料後台設定", url: "/media/webgl/reward-admin-settings.png", type: "image" },
+      { name: "多語系套件", url: "/media/webgl/i2-localization-package.png", type: "image" },
     ],
     overview:
-      "主導 WebGL 網頁遊戲開發，將卡牌、問答、拼圖等多款獨立小遊戲整合進單一主程式架構，並設計不同模式的遊戲啟動邏輯。透過串接後端 API，讓網頁端可動態配置遊戲設定與內容，同時優化多語系字型顯示。另外實作以麥克風輸入操作的網頁聲控遊戲。",
+      "主導 WebGL 網頁遊戲開發，將卡牌、問答、拼圖等多款獨立小遊戲整合進單一主程式架構，並設計不同模式的遊戲啟動邏輯。透過串接後端 API，讓網頁端可動態配置遊戲設定與內容，同時優化多語系字型顯示。",
     highlights: [
       "整合卡牌／問答／拼圖小遊戲至共用主程式，統一資源載入與場景生命週期",
       "串接後台 API 動態下發題庫、關卡與遊戲參數，免改版即可調整內容",
-      "設計多模式啟動邏輯（單機／活動／預覽），由 URL 參數與後台設定決定",
-      "優化多語系字型與 Fallback，解決 WebGL 中文缺字與包體膨脹問題",
-      "以 JS Interop 取得麥克風音量，實作網頁聲控玩法",
+      "設計多模式啟動邏輯（API／S3／本地），由遊戲讀取參數決定",
+      "優化多語系字型與 Fallback，解決 WebGL 中文缺字問題",
     ],
     codeFiles: [
       {
-        name: "GameBootstrapper.cs",
-        summary: "多模式啟動邏輯：依後台設定載入對應小遊戲",
+        name: "GameConfigApiClient.cs",
+        summary: "後台管理器：帶入授權資訊，取得並反序列化遊戲與獎勵設定",
         code: `using System;
-using System.Collections;
-using UnityEngine;
-using UnityEngine.SceneManagement;
-
-public enum GameMode { Card, Quiz, Puzzle, Voice }
-
-public class GameBootstrapper : MonoBehaviour
-{
-    [SerializeField] private RemoteConfigService config;
-    [SerializeField] private LoadingView loading;
-
-    private IEnumerator Start()
-    {
-        loading.Show("載入設定中…");
-
-        yield return config.FetchAsync(); // 後台 API
-        if (!config.IsReady) {
-            loading.ShowError("無法取得遊戲設定");
-            yield break;
-        }
-
-        LocalizationService.Apply(config.Language);
-
-        var mode = Enum.TryParse(config.Mode, true, out GameMode m) ? m : GameMode.Card;
-        var sceneName = mode switch
-        {
-            GameMode.Card => "Game_Card",
-            GameMode.Quiz => "Game_Quiz",
-            GameMode.Puzzle => "Game_Puzzle",
-            GameMode.Voice => "Game_Voice",
-            _ => "Game_Card",
-        };
-
-        var op = SceneManager.LoadSceneAsync(sceneName);
-        while (!op.isDone) {
-            loading.SetProgress(op.progress);
-            yield return null;
-        }
-        loading.Hide();
-    }
-} `,
-      },
-      {
-        name: "RemoteConfigService.cs",
-        summary: "後台 API 串接：抓取網頁端的遊戲設定",
-        code: `using System.Collections;
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Networking;
 
 [System.Serializable]
-public class GameConfigDto {
-    public string mode;
-    public string language;
-    public int timeLimit;
-    public string[] questionIds;
+public class GameConfigResponse
+{
+    // 後台回應統一包裝：success 決定是否可使用 data。
+    public bool success;
+    public string message;
+    public GameSettings data;
 }
 
-public class RemoteConfigService : MonoBehaviour
+public class GameSettings
 {
-    [SerializeField] private string apiRoot = "https://api.example.com";
+    // 不同遊戲共用同一份設定回應，再由對應遊戲管理器取用自身區塊。
+    public CardSettings card;
+    public QuizSettings quiz;
+    public PuzzleSettings puzzle;
+    public PrizeSettings prize;
+}
 
-    public bool IsReady { get; private set; }
-    public string Mode => _dto?.mode;
-    public string Language => _dto?.language ?? "zh-TW";
-    public GameConfigDto Data => _dto;
+public sealed class GameConfigApiClient
+{
+    private readonly string _apiRoot;
+    private readonly string _accessToken;
 
-    private GameConfigDto _dto;
-
-    public IEnumerator FetchAsync()
+    public GameConfigApiClient(string apiRoot, string accessToken)
     {
-        // WebGL 由網址參數帶入場次代碼
-        var sessionId = WebGLQuery.Get("session");
-        var url = $"{apiRoot}/game/config?session={sessionId}";
+        _apiRoot = apiRoot;
+        _accessToken = accessToken;
+    }
 
-        using var req = UnityWebRequest.Get(url);
-        req.timeout = 10;
-        yield return req.SendWebRequest();
+    public async Task<GameConfigResponse> FetchAsync(string projectKey)
+    {
+        // 將網頁端提供的專案識別轉為後台可讀取的 JSON 請求內容。
+        var payload = JsonUtility.ToJson(new ConfigRequest { projectKey = projectKey });
+        using var request = new UnityWebRequest($"{_apiRoot}/game-config", "POST");
+        request.uploadHandler = new UploadHandlerRaw(System.Text.Encoding.UTF8.GetBytes(payload));
+        request.downloadHandler = new DownloadHandlerBuffer();
+        request.SetRequestHeader("Content-Type", "application/json");
+        if (!string.IsNullOrEmpty(_accessToken))
+            request.SetRequestHeader("Authorization", $"Bearer {_accessToken}");
 
-        if (req.result != UnityWebRequest.Result.Success) {
-            Debug.LogError($"[Config] {req.error}");
-            IsReady = false;
-            yield break;
+        // UnityWebRequest 不支援直接 await；以 Task.Yield 等待請求完成。
+        var operation = request.SendWebRequest();
+        while (!operation.isDone) await Task.Yield();
+
+        if (request.result != UnityWebRequest.Result.Success)
+        {
+            Debug.LogWarning($"取得遊戲設定失敗：{request.error}");
+            return null;
         }
 
-        _dto = JsonUtility.FromJson<GameConfigDto>(req.downloadHandler.text);
-        IsReady = _dto != null;
+        // 回傳統一的資料傳輸物件，讓卡牌、問答與拼圖共用同一份後台設定。
+        return JsonUtility.FromJson<GameConfigResponse>(request.downloadHandler.text);
+    }
+
+    [Serializable]
+    private class ConfigRequest { public string projectKey; }
+} `,
+      },
+      {
+        name: "GameManager.cs",
+        summary: "共用遊戲管理器：啟動時依序嘗試 API → S3 → 本地 CSV 的資料來源降級流程",
+        code: `using System.Threading.Tasks;
+using UnityEngine;
+
+public enum ContentSource { Api, S3, LocalCsv }
+
+public abstract class GameManager : MonoBehaviour
+{
+    protected string ProjectKey { get; private set; }
+    protected string Language { get; private set; } = "zh-TW";
+    protected string AccessToken { get; private set; }
+    protected ContentSource Source { get; private set; }
+
+    private bool _hasProjectKey;
+    private bool _canUseApi;
+
+    protected virtual void Start()
+    {
+#if UNITY_WEBGL && !UNITY_EDITOR
+        // 由外層網頁注入專案識別、語系與授權資料。
+        Application.ExternalCall("RequestLaunchContext");
+#else
+        ReceiveLaunchContext("preview", "zh-TW", "");
+#endif
+    }
+
+    public void ReceiveLaunchContext(string projectKey, string language, string accessToken)
+    {
+        // 對 WebView 傳入值做最小清理，避免包裝 JSON 的殘餘字元影響流程。
+        ProjectKey = Sanitize(projectKey);
+        Language = string.IsNullOrWhiteSpace(language) ? "zh-TW" : language;
+        AccessToken = Sanitize(accessToken);
+
+        // 網頁端未帶值時，沿用上一次保存的啟動資訊以支援本地 CSV fallback。
+        if (string.IsNullOrEmpty(ProjectKey)) ProjectKey = PlayerPrefsGameState.ProjectId;
+        if (string.IsNullOrEmpty(language)) Language = PlayerPrefsGameState.Language;
+
+        // Project 與語系需要跨次啟動保留；Token 僅留在記憶體，不寫入 PlayerPrefs。
+        PlayerPrefsGameState.SaveLaunchContext(ProjectKey, Language);
+        _hasProjectKey = !string.IsNullOrEmpty(ProjectKey);
+        _canUseApi = !string.IsNullOrEmpty(AccessToken);
+        TryInitialize();
+    }
+
+    private async void TryInitialize()
+    {
+        // 專案識別是三種來源共用的必要條件；Token 僅影響 API 是否可用。
+        if (!_hasProjectKey) return;
+        await InitializeAsync();
+    }
+
+    protected async Task InitializeAsync()
+    {
+        ShowLoading(true);
+        // 優先取得後台即時設定；失敗則取遠端 S3 備援，最後使用本地 CSV。
+        var loaded = (_canUseApi && await TryLoadAsync(ContentSource.Api))
+                  || await TryLoadAsync(ContentSource.S3)
+                  || await TryLoadAsync(ContentSource.LocalCsv);
+
+        if (loaded) await BuildGameAsync();
+        else ShowLoadError();
+        ShowLoading(false);
+    }
+
+    private async Task<bool> TryLoadAsync(ContentSource source)
+    {
+        // 子類別只需實作資料來源，啟動與 fallback 流程由共用基類維護。
+        Source = source;
+        return source switch
+        {
+            ContentSource.Api => await LoadFromApiAsync(),
+            ContentSource.S3 => await LoadFromS3Async(),
+            _ => await LoadFromLocalCsvAsync(),
+        };
+    }
+
+    protected abstract Task<bool> LoadFromApiAsync();
+    // 各遊戲僅實作三個資料來源與建置邏輯，啟動順序由共用基類統一維護。
+    protected abstract Task<bool> LoadFromS3Async();
+    protected abstract Task<bool> LoadFromLocalCsvAsync();
+    protected abstract Task BuildGameAsync();
+
+    private static string Sanitize(string value) =>
+        string.IsNullOrWhiteSpace(value) ? "" : value.Trim().Trim('"', '}', ']');
+
+    protected virtual void ShowLoading(bool visible) { }
+    protected virtual void ShowLoadError() { }
+} `,
+      },
+      {
+        name: "CardGameManager.cs",
+        summary: "卡牌遊戲實作：繼承共用載入流程，轉換後台資料並套用語系與遊戲參數",
+        code: `using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using UnityEngine;
+
+public class CardGameManager : GameManager
+{
+    // 可在 Inspector 調整的預設值，後台未提供設定時作為安全 fallback。
+    [SerializeField] private string apiRoot;
+    [SerializeField] private CardBoard board;
+    [SerializeField] private int defaultPairCount = 6;
+    [SerializeField] private int defaultTimeLimit = 60;
+
+    private readonly List<LocalizedCardSet> _cardSets = new();
+    private CardSettings _settings;
+
+    protected override async Task<bool> LoadFromApiAsync()
+    {
+        // 透過共用 API Client 取得設定，卡牌類別只處理自己的設定區塊。
+        var client = new GameConfigApiClient(apiRoot, AccessToken);
+        var response = await client.FetchAsync(ProjectKey);
+        if (response?.success != true || response.data?.card == null) return false;
+
+        _settings = response.data.card;
+        _cardSets.Clear();
+        foreach (var group in _settings.localizedContent)
+        {
+            // 後台資料依語系分組，轉成遊戲內部使用的卡牌資料模型。
+            _cardSets.Add(new LocalizedCardSet
+            {
+                language = group.language,
+                cards = group.cards.Select(item => new CardData
+                {
+                    id = item.id,
+                    title = item.title,
+                    description = item.description,
+                    imageUrl = item.imageUrl,
+                }).ToList(),
+            });
+        }
+        return _cardSets.Count > 0;
+    }
+
+    protected override async Task BuildGameAsync()
+    {
+        // 精確語系 → 語系前綴 → 英文，降低缺少翻譯時的中斷風險。
+        var cards = FindCardsForLanguage(Language);
+        if (cards == null || cards.Count == 0)
+        {
+            Debug.LogWarning("找不到目前語系的卡牌資料。");
+            return;
+        }
+
+        // 後台數值仍須依實際資料筆數限制，避免產生不存在的配對。
+        var pairCount = Mathf.Clamp(
+            _settings?.pairCount > 0 ? _settings.pairCount : defaultPairCount,
+            1,
+            cards.Count);
+        var timeLimit = _settings?.timeLimit > 0 ? _settings.timeLimit : defaultTimeLimit;
+
+        // 後台下發的遊戲參數同步保存，切換至 S3／本地 CSV 時可沿用最後有效設定。
+        PlayerPrefsGameState.CardTimeLimit = timeLimit;
+
+        await board.InitializeAsync(cards, pairCount, timeLimit);
+    }
+
+    private List<CardData> FindCardsForLanguage(string language)
+    {
+        // 例如 zh-TW 找不到時會改找 zh，再退回英文資料。
+        var shortCode = language.Split('-')[0];
+        return _cardSets.FirstOrDefault(set => set.language == language)?.cards
+            ?? _cardSets.FirstOrDefault(set => set.language.StartsWith(shortCode))?.cards
+            ?? _cardSets.FirstOrDefault(set => set.language.StartsWith("en"))?.cards;
+    }
+
+    // API 無法使用時，沿用基類定義的 S3 → 本地 CSV 備援順序。
+    protected override Task<bool> LoadFromS3Async() => Task.FromResult(false);
+    protected override Task<bool> LoadFromLocalCsvAsync() => Task.FromResult(false);
+} `,
+      },
+      {
+        name: "CsvGameDataLoader.cs",
+        summary: "CSV 資料載入：支援本機／S3 文字來源、清除 BOM，並將資料分組為多語系內容",
+        code: `using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
+
+public static class CsvGameDataLoader
+{
+    public static async Task<Dictionary<string, List<CardData>>> LoadAsync(
+        ContentSource source, string location, Func<string, Task<string>> loadFromS3)
+    {
+        // 依 source 僅擇一取得資料；csv 是統一的暫存輸入，不會同時保留兩份資料。
+        var csv = source == ContentSource.S3
+            ? await loadFromS3(location)
+            : await File.ReadAllTextAsync(location);
+
+        if (string.IsNullOrWhiteSpace(csv)) return null;
+
+        // UTF-8 BOM 與 CRLF 會影響欄位判斷，先統一正規化內容。
+        var rows = csv.TrimStart('\uFEFF').Replace("\r", "")
+            .Split('\n', StringSplitOptions.RemoveEmptyEntries);
+        if (rows.Length <= 1) return null;
+
+        var cards = new List<CardData>();
+        for (var rowIndex = 1; rowIndex < rows.Length; rowIndex++)
+        {
+            var columns = rows[rowIndex].Split(',');
+            if (columns.Length < 4) continue;
+
+            cards.Add(new CardData
+            {
+                language = columns[0].Trim(),
+                title = columns[1].Trim(),
+                imageUrl = columns[2].Trim(),
+                description = columns[3].Trim(),
+            });
+        }
+
+        // 依語系分組，讓遊戲管理器可沿用同一套語系 fallback 邏輯。
+        return cards.GroupBy(card => card.language)
+            .ToDictionary(group => group.Key, group => group.ToList());
     }
 } `,
       },
       {
-        name: "VoiceInput.cs",
-        summary: "網頁聲控：取得麥克風音量並轉為遊戲輸入",
+        name: "PlayerPrefsGameState.cs",
+        summary: "本機狀態管理：集中保存語系、音量、遊戲參數與目前專案識別，並提供預設值",
         code: `using UnityEngine;
 
-public class VoiceInput : MonoBehaviour
+public static class PlayerPrefsGameState
 {
-    [SerializeField] private float threshold = 0.08f;
-    [SerializeField] private float smoothing = 12f;
+    private const string LanguageKey = "game.language";
+    private const string ProjectKey = "game.project";
+    private const string CardTimeKey = "card.timeLimit";
+    private const string PuzzleCountKey = "puzzle.pieceCount";
+    private const string SfxVolumeKey = "audio.sfxVolume";
+    private const string BgmVolumeKey = "audio.bgmVolume";
 
-    private AudioClip _clip;
-    private string _device;
-    private float[] _samples = new float[256];
-
-    public float Loudness { get; private set; }
-    public bool IsShouting => Loudness > threshold;
-
-    private void Start()
+    // 設定值以屬性封裝，避免各遊戲散落字串 key 與預設值。
+    public static string Language
     {
-        if (Microphone.devices.Length == 0) return;
-        _device = Microphone.devices[0];
-        _clip = Microphone.Start(_device, true, 1, 44100);
+        get => PlayerPrefs.GetString(LanguageKey, "zh-TW");
+        set => PlayerPrefs.SetString(LanguageKey, value);
     }
 
-    private void Update()
+    public static string ProjectId
     {
-        if (_clip == null) return;
+        get => PlayerPrefs.GetString(ProjectKey, "");
+        set => PlayerPrefs.SetString(ProjectKey, value);
+    }
 
-        var position = Microphone.GetPosition(_device) - _samples.Length;
-        if (position < 0) return;
+    public static void SaveLaunchContext(string projectId, string language)
+    {
+        ProjectId = projectId;
+        Language = language;
+        PlayerPrefs.Save();
+    }
 
-        _clip.GetData(_samples, position);
+    public static float CardTimeLimit
+    {
+        get => PlayerPrefs.GetFloat(CardTimeKey, 60f);
+        set => PlayerPrefs.SetFloat(CardTimeKey, Mathf.Clamp(value, 10f, 300f));
+    }
 
-        float sum = 0f;
-        for (int i = 0; i < _samples.Length; i++) sum += _samples[i] * _samples[i];
-        var rms = Mathf.Sqrt(sum / _samples.Length);
+    public static int PuzzlePieceCount
+    {
+        get => PlayerPrefs.GetInt(PuzzleCountKey, 4);
+        set => PlayerPrefs.SetInt(PuzzleCountKey, Mathf.Max(4, value));
+    }
 
-        Loudness = Mathf.Lerp(Loudness, rms, Time.deltaTime * smoothing);
+    public static void SaveAudio(float sfxVolume, float bgmVolume)
+    {
+        PlayerPrefs.SetFloat(SfxVolumeKey, Mathf.Clamp01(sfxVolume));
+        PlayerPrefs.SetFloat(BgmVolumeKey, Mathf.Clamp01(bgmVolume));
+        PlayerPrefs.Save(); // 在設定畫面確認後才寫入磁碟，減少 I/O 次數。
     }
 } `,
       },
@@ -719,453 +929,90 @@ public class VoiceInput : MonoBehaviour
     title: "UDP 影片播放器",
     tagline: "展場多螢幕影片同步控制，外部硬體/軟體即時操作",
     year: "\n",
-    role: "Unity 工程師（展場專案）",
+    role: "",
     engine: "Unity · UDP Socket",
-    platforms: ["Windows", "展場裝置"],
+    platforms: ["PC"],
     tags: ["UDP", "多螢幕"],
-    poster: project3,
+    poster: "/media/udp/UDPCtrl.jpg",
     videoFiles: [
-      { name: "主要展示", url: "/videos/udp-player.mp4" },
-      { name: "UDP 串流", url: "/videos/udp-stream.mp4" },
-      { name: "展場控制", url: "/videos/udp-control.mp4" },
+      { name: "設定介面", url: "/media/udp/UDPSet.jpg", type: "image" },
+      { name: "控制介面", url: "/media/udp/UDPCtrl.jpg", type: "image" },
+      { name: "影片播放", url: "https://pub-86a877e9ebff4295a5208769f38aa96e.r2.dev/UDP.mp4" },
     ],
     overview:
-      "為展場互動專案開發的影片播放器工具，透過 UDP 協定接收外部硬體或控制軟體的指令，控制個別螢幕的播放／暫停／停止與跳轉，達成多機播放的即時同步與高效流暢控制。",
+      "為展場互動專案開發的影片播放器工具，透過 UDP 協定接收外部硬體或控制軟體的指令，控制個別螢幕的播放／暫停／停止，達成多機播放個別影片的即時同步與高效流暢控制。",
     highlights: [
-      "自訂輕量 UDP 指令協定（設備編號 + 指令 + 參數），延遲低於一個影格",
-      "支援單機指定與全體廣播控制，播放/暫停/停止/跳轉/音量",
-      "在背景執行緒接收封包並排入主執行緒佇列，避免 Unity API 跨執行緒錯誤",
-      "提供設定介面配置埠號、設備編號與影片清單，現場不需改程式",
+      "自訂輕量 UDP 指令協定，以設備編號、指令與參數組成簡潔封包格式",
+      "支援單機指定控制電腦個別螢幕，可即時執行播放、暫停、停止等影片操作",
+      "提供自訂影片播放清單介面，讓使用者直接新增、刪除、修改播放內容，無需改程式",
     ],
-    codeFiles: [
-      {
-        name: "UdpCommandReceiver.cs",
-        summary: "背景執行緒接收 UDP 封包並轉交主執行緒",
-        code: `using System;
-using System.Collections.Concurrent;
-using System.Net;
-using System.Net.Sockets;
-using System.Text;
-using System.Threading;
-using UnityEngine;
-
-public class UdpCommandReceiver : MonoBehaviour
-{
-    [SerializeField] private int port = 8899;
-
-    public event Action < string > OnCommand;
-
-    private UdpClient _client;
-    private Thread _thread;
-    private volatile bool _running;
-    private readonly ConcurrentQueue < string > _queue = new ();
-
-    private void Start()
-    {
-        _client = new UdpClient(port);
-        _running = true;
-        _thread = new Thread(ReceiveLoop) { IsBackground = true };
-        _thread.Start();
-        Debug.Log($"[UDP] listening on {port}");
-    }
-
-    private void ReceiveLoop()
-    {
-        var remote = new IPEndPoint(IPAddress.Any, 0);
-        while (_running) {
-            try {
-                var bytes = _client.Receive(ref remote);
-                _queue.Enqueue(Encoding.UTF8.GetString(bytes).Trim());
-            }
-            catch (SocketException) { /* 關閉時忽略 */ }
-        }
-    }
-
-    private void Update()
-    {
-        while (_queue.TryDequeue(out var msg)) OnCommand?.Invoke(msg);
-    }
-
-    private void OnDestroy()
-    {
-        _running = false;
-        _client?.Close();
-        _thread?.Join(200);
-    }
-} `,
-      },
-      {
-        name: "VideoCommandHandler.cs",
-        summary: "指令解析：控制指定螢幕的播放/暫停/停止/跳轉",
-        code: `using UnityEngine;
-using UnityEngine.Video;
-
-// 指令格式： "<deviceId>|<command>|<value>"   例： "2|SEEK|35.5"
-public class VideoCommandHandler : MonoBehaviour
-{
-    [SerializeField] private int deviceId = 1;
-    [SerializeField] private VideoPlayer player;
-    [SerializeField] private UdpCommandReceiver receiver;
-
-    private void OnEnable() => receiver.OnCommand += Handle;
-    private void OnDisable() => receiver.OnCommand -= Handle;
-
-    private void Handle(string raw)
-    {
-        var parts = raw.Split('|');
-        if (parts.Length < 2) return;
-
-        // 0 = 廣播給所有設備
-        if (!int.TryParse(parts[0], out var target)) return;
-        if (target != 0 && target != deviceId) return;
-
-        var value = parts.Length > 2 ? parts[2] : string.Empty;
-
-        switch (parts[1].ToUpperInvariant()) {
-            case "PLAY": player.Play(); break;
-            case "PAUSE": player.Pause(); break;
-            case "STOP":
-                player.Stop();
-                player.time = 0;
-                break;
-            case "SEEK":
-                if (double.TryParse(value, out var t)) player.time = t;
-                break;
-            case "VOLUME":
-                if (float.TryParse(value, out var v))
-                    player.SetDirectAudioVolume(0, Mathf.Clamp01(v));
-                break;
-            case "LOAD":
-                player.url = System.IO.Path.Combine(Application.streamingAssetsPath, value);
-                player.Prepare();
-                break;
-        }
-    }
-} `,
-      },
-    ],
+    codeFiles: [],
   },
   {
     id: "space-dog-go",
     title: "太空狗狗 GO!",
-    tagline: "畢業專題：飛盤換位解謎平台遊戲（競賽第三名）",
+    tagline: "畢業專題：飛盤換位解謎平台遊戲",
     year: "2022/11–2023/6",
-    role: "程式設計／關卡設計（4 人團隊）",
-    engine: "Unity",
+    role: "",
+    engine: "Unity2D",
     platforms: ["PC"],
-    tags: ["解謎", "關卡設計", "平台跳躍", "團隊領導"],
+    tags: ["解謎", "關卡設計", "平台跳躍"],
     poster: project1,
     videoFiles: [
-      { name: "主要展示", url: "/videos/space-dog.mp4" },
-      { name: "解謎機關", url: "/videos/space-dog-puzzle.mp4" },
-      { name: "引力裝置", url: "/videos/space-dog-gravity.mp4" },
+      { name: "遊戲展示", url: "https://pub-86a877e9ebff4295a5208769f38aa96e.r2.dev/space-dog.mp4" },
     ],
     overview:
-      "玩家扮演拿著飛盤的太空狗狗，核心玩法是丟出兩個飛盤進行物件與物件之間的「換位」。關卡中加入傳送門與引力裝置等機關供玩家解謎，操作簡單易上手。我負責程式設計與關卡設計，並提出更換遊戲提案促使團隊重新定位製作方向，最終獲得競賽第三名。",
+      "玩家扮演拿著飛盤的太空狗狗，核心玩法是丟出兩個飛盤進行物件與物件之間的「換位」。關卡中加入傳送門與引力裝置等機關供玩家解謎，操作簡單易上手。我負責程式設計與關卡設計，並提出更換關卡設計提案促使遊戲有良好的學習曲線與難度設計，最終獲得放式大賞遊戲組競賽第三名。",
     highlights: [
       "實作雙飛盤標記與物件換位（Swap）核心機制",
       "設計傳送門與引力裝置機關，並調整關卡難度曲線與遊戲平衡",
-      "主導關卡設計與玩法改良，增加解謎元素提升耐玩度",
-      "團隊由六人縮編為四人後仍完成專案並取得競賽第三名",
+      "優化關卡設計與玩法改良，增加解謎元素提升耐玩度",
     ],
-    codeFiles: [
-      {
-        name: "DiscSwapSystem.cs",
-        summary: "雙飛盤核心機制：標記兩個目標並交換位置",
-        code: `using UnityEngine;
-
-public class DiscSwapSystem : MonoBehaviour
-{
-    [SerializeField] private Disc discA;
-    [SerializeField] private Disc discB;
-    [SerializeField] private float swapDuration = 0.25f;
-
-    public bool CanSwap => discA.HasTarget && discB.HasTarget;
-
-    public void Throw(int index, Vector3 origin, Vector3 direction)
-    {
-        var disc = index == 0 ? discA : discB;
-        disc.Launch(origin, direction);
-    }
-
-    public void TrySwap()
-    {
-        if (!CanSwap) return;
-
-        var a = discA.Target;
-        var b = discB.Target;
-        if (a == b) return;
-
-        var posA = a.position;
-        var posB = b.position;
-
-        StartCoroutine(Move(a, posB));
-        StartCoroutine(Move(b, posA));
-
-        discA.Clear();
-        discB.Clear();
-    }
-
-    private System.Collections.IEnumerator Move(Transform t, Vector3 to)
-    {
-        var body = t.GetComponent<Rigidbody>();
-        if (body != null) body.isKinematic = true;
-
-        var from = t.position;
-        for (float e = 0f; e < swapDuration; e += Time.deltaTime)
-        {
-            t.position = Vector3.Lerp(from, to, e / swapDuration);
-            yield return null;
-        }
-        t.position = to;
-
-        if (body != null) {
-            body.isKinematic = false;
-            body.linearVelocity = Vector3.zero;
-        }
-    }
-} `,
-      },
-      {
-        name: "GravityDevice.cs",
-        summary: "引力裝置：範圍內物件受吸引力並可反轉重力",
-        code: `using UnityEngine;
-
-[RequireComponent(typeof (SphereCollider))]
-public class GravityDevice : MonoBehaviour
-{
-    [SerializeField] private float force = 25f;
-    [SerializeField] private bool repel;
-    [SerializeField] private AnimationCurve falloff =
-        AnimationCurve.EaseInOut(0f, 1f, 1f, 0f);
-
-    private SphereCollider _area;
-
-    private void Awake()
-    {
-        _area = GetComponent<SphereCollider>();
-        _area.isTrigger = true;
-    }
-
-    private void OnTriggerStay(Collider other)
-    {
-        var body = other.attachedRigidbody;
-        if (body == null || body.isKinematic) return;
-
-        var offset = transform.position - body.position;
-        var t = Mathf.Clamp01(offset.magnitude / _area.radius);
-        var strength = force * falloff.Evaluate(t);
-
-        var dir = offset.normalized * (repel ? -1f: 1f);
-        body.AddForce(dir * strength, ForceMode.Acceleration);
-    }
-
-    public void Toggle() => repel = !repel;
-} `,
-      },
-      {
-        name: "Portal.cs",
-        summary: "傳送門：位置與速度方向的轉換傳送",
-        code: `using UnityEngine;
-
-public class Portal : MonoBehaviour
-{
-    [SerializeField] private Portal linked;
-    [SerializeField] private Transform exit;
-    [SerializeField] private float cooldown = 0.2f;
-
-    private float _readyTime;
-
-    private void OnTriggerEnter(Collider other)
-    {
-        if (linked == null || Time.time < _readyTime) return;
-
-        var body = other.attachedRigidbody;
-        if (body == null) return;
-
-        linked.Receive(body);
-        _readyTime = linked._readyTime = Time.time + cooldown;
-    }
-
-    public void Receive(Rigidbody body)
-    {
-        // 將入口的速度轉到出口的座標系
-        var localVelocity = transform.InverseTransformDirection(body.linearVelocity);
-        body.position = exit.position;
-        body.linearVelocity = exit.TransformDirection(localVelocity);
-        body.transform.rotation = exit.rotation;
-    }
-} `,
-      },
-    ],
+    codeFiles: [],
   },
   {
     id: "vr-card-game",
     title: "VR 抽牌遊戲",
-    tagline: "四選一隨機抽牌，累積金錢的 VR 小品",
+    tagline: "一款讓玩家四選一隨機抽牌的遊戲，目標是抽取加分牌讓金錢越來越高。",
     year: "2024",
-    role: "Unity 工程師",
-    engine: "Unity · XR Interaction Toolkit",
+    role: "",
+    engine: "Unity · VR",
     platforms: ["VR"],
     tags: ["VR", "隨機抽牌", "互動"],
     poster: project2,
     videoFiles: [
-      { name: "主要展示", url: "/videos/vr-card.mp4" },
-      { name: "抽牌互動", url: "/videos/vr-card-draw.mp4" },
-      { name: "特效演出", url: "/videos/vr-card-fx.mp4" },
+      { name: "主要展示", url: "https://pub-86a877e9ebff4295a5208769f38aa96e.r2.dev/vr-card.mp4" },
     ],
     overview:
-      "一款 VR 抽牌小遊戲，玩家從四張牌中隨機抽取一張，目標是抽到加分牌讓金錢越來越高。負責 VR 互動抓取、抽牌權重機制與結算流程。",
+      "一款讓玩家四選一隨機抽牌的遊戲，目標是抽取加分牌讓金錢越來越高。",
     highlights: [
       "以權重亂數控制加分／扣分牌的出現機率，維持刺激度",
       "VR 手把抓取與翻牌動畫、觸覺回饋整合",
       "金錢結算與連續加成規則",
     ],
-    codeFiles: [
-      {
-        name: "CardDrawManager.cs",
-        summary: "四選一抽牌：權重亂數與結算",
-        code: `using System.Collections.Generic;
-using UnityEngine;
-
-[System.Serializable]
-public class CardOutcome {
-    public string label;
-    public int money;      // 正數加分、負數扣分
-    public float weight = 1f;
-}
-
-public class CardDrawManager : MonoBehaviour
-{
-    [SerializeField] private List < CardOutcome > pool = new ();
-    [SerializeField] private CardView[] cards = new CardView[4];
-
-    public int Money { get; private set; }
-
-    public void Deal()
-    {
-        foreach(var card in cards)
-        card.Set(Roll());
-    }
-
-    public void Reveal(int index)
-    {
-        var outcome = cards[index].Outcome;
-        Money = Mathf.Max(0, Money + outcome.money);
-        cards[index].Flip();
-        HapticFeedback.Play(outcome.money >= 0 ? 0.4f : 0.8f);
-    }
-
-    private CardOutcome Roll()
-    {
-        float total = 0f;
-        foreach(var o in pool) total += o.weight;
-
-        var pick = Random.Range(0f, total);
-        foreach(var o in pool)
-        {
-            pick -= o.weight;
-            if (pick <= 0f) return o;
-        }
-        return pool[^ 1];
-    }
-} `,
-      },
-    ],
+    codeFiles: [],
   },
   {
     id: "ar-vr-proposal",
     title: "互動式產品介紹（AR / VR）",
-    tagline: "B2B 商務提案用的 AR、VR 產品介紹原型",
+    tagline: "AR、VR 互動式產品介紹",
     year: "2024–2026",
-    role: "Unity 工程師（原型開發）",
+    role: "",
     engine: "Unity · AR Foundation",
     platforms: ["Android APK", "VR"],
     tags: ["AR", "VR", "Android"],
     poster: project3,
     videoFiles: [
-      { name: "主要展示", url: "/videos/ar-proposal.mp4" },
-      { name: "AR 互動", url: "/videos/ar-proposal-ar.mp4" },
-      { name: "VR 預覽", url: "/videos/ar-proposal-vr.mp4" },
+      { name: "AR 展示", url: "https://pub-86a877e9ebff4295a5208769f38aa96e.r2.dev/AR.mp4" },
+      { name: "VR 展示", url: "https://pub-86a877e9ebff4295a5208769f38aa96e.r2.dev/VR.mp4" },
     ],
     overview:
-      "針對 B2B 提案與客戶需求快速建立的產品介紹原型，包含 AR 互動式產品介紹與 VR 互動式產品介紹，協助商務團隊進行概念驗證（POC）與產品展示。強調短時間內可展示、可調整的原型架構，並打包為 Android 手機／平板 APK 現場使用。",
+      "針對 B2B 提案與客戶需求快速建立的產品介紹原型，包含 AR 互動式產品介紹與 VR 互動式產品介紹，協助商務團隊進行概念驗證（POC）與產品展示。",
     highlights: [
-      "AR 平面偵測放置產品模型，支援縮放旋轉與熱點資訊",
-      "VR 版本提供沉浸式產品導覽與零件拆解展示",
-      "資料驅動的熱點與說明內容，換產品只需更換設定檔",
-      "輸出 Android APK 供業務現場即時展示",
+      "AR 平面偵測，點擊畫面即可將產品模型放置於現實空間中",
+      "VR 版本提供沉浸式產品導覽",
+      "輸出 Android APK 供業務現場使用平板即時展示",
     ],
-    codeFiles: [
-      {
-        name: "ARProductPlacer.cs",
-        summary: "AR 平面偵測與產品模型放置",
-        code: `using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.XR.ARFoundation;
-using UnityEngine.XR.ARSubsystems;
-
-[RequireComponent(typeof (ARRaycastManager))]
-public class ARProductPlacer : MonoBehaviour
-{
-    [SerializeField] private GameObject productPrefab;
-
-    private ARRaycastManager _raycaster;
-    private readonly List < ARRaycastHit > _hits = new ();
-    private GameObject _instance;
-
-    private void Awake() => _raycaster = GetComponent<ARRaycastManager>();
-
-    private void Update()
-    {
-        if (Input.touchCount == 0) return;
-        var touch = Input.GetTouch(0);
-        if (touch.phase != TouchPhase.Began) return;
-
-        if (!_raycaster.Raycast(touch.position, _hits, TrackableType.PlaneWithinPolygon))
-            return;
-
-        var pose = _hits[0].pose;
-        if (_instance == null)
-            _instance = Instantiate(productPrefab, pose.position, pose.rotation);
-        else
-            _instance.transform.SetPositionAndRotation(pose.position, pose.rotation);
-    }
-} `,
-      },
-      {
-        name: "ProductHotspot.cs",
-        summary: "資料驅動熱點：點擊顯示零件說明",
-        code: `using UnityEngine;
-
-[System.Serializable]
-public class HotspotData {
-    public string id;
-    public string title;
-    [TextArea] public string description;
-    public Vector3 localPosition;
-}
-
-public class ProductHotspot : MonoBehaviour
-{
-    [SerializeField] private HotspotConfig config;   // ScriptableObject
-    [SerializeField] private Transform anchorRoot;
-    [SerializeField] private HotspotMarker markerPrefab;
-    [SerializeField] private InfoPanel panel;
-
-    private void Start()
-    {
-        foreach(var data in config.hotspots)
-        {
-            var marker = Instantiate(markerPrefab, anchorRoot);
-            marker.transform.localPosition = data.localPosition;
-            marker.Bind(data, Show);
-        }
-    }
-
-    private void Show(HotspotData data) => panel.Show(data.title, data.description);
-} `,
-      },
-    ],
+    codeFiles: [],
   },
 ];
