@@ -125,8 +125,8 @@ export function Index() {
                   <p className="font-mono text-xs sm:text-sm text-muted-foreground">2022/9 – 2023/6</p>
                   <h3 className="mt-1 text-base sm:text-lg font-semibold text-foreground">遊戲程式 · 畢業專題「太空狗狗GO!」</h3>
                   <p className="mt-2 text-sm sm:text-base leading-relaxed text-muted-foreground">
-                    負責程式設計與關卡設計，帶領 4 人團隊重新定位遊戲方向，
-                    加入解謎機關與傳送門、引力裝置，獲得競賽第三名。
+                    負責程式設計與關卡設計，提出遊戲方向調整提案並積極參與討論，促使團隊重新定位製作方向。
+                    加入傳送門、引力裝置等設計增加解謎元素，調整遊戲平衡確保挑戰性與趣味性兼具，與團隊共同獲得競賽第三名。
                   </p>
                 </li>
                 <li className="relative">
