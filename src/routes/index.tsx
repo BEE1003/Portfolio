@@ -178,7 +178,7 @@ export function Index() {
             <p className="section-label">Selected Work</p>
             <h2 className="mt-4 text-2xl sm:text-3xl font-bold tracking-tight">作品集</h2>
             <p className="mt-3 max-w-lg text-sm sm:text-base text-muted-foreground">
-              點擊任一專案，觀看實機影片與技術重點。
+              點擊任一專案，觀看更多實作影片與技術重點。
             </p>
 
             <div className="mt-12 grid gap-5 md:grid-cols-2">
